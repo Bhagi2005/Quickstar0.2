@@ -51,8 +51,8 @@
           <label for="fullName">Full name</label>
           <input id="fullName" name="fullName" type="text" placeholder="Candidate name" required />
 
-          <label for="regId">Registration ID</label>
-          <input id="regId" name="regId" type="text" placeholder="e.g. REG2025-0123" required />
+          <label for="rollNo">Roll Number</label>
+          <input id="rollNo" name="rollNo" type="text" placeholder="e.g. 21CS1234" required />
 
           <div class="row">
             <div style="flex:1">
@@ -111,7 +111,8 @@
     // 2) Backend should perform face recognition/verification and return {verified: bool, systemNumber: string, message: string}
     // 3) For kiosk enforcement, run this page inside a locked OS profile or convert to Electron with proper OS policies.
 
-    const VERIFY_ENDPOINT = '/api/verify'; // <-- replace with your actual verification API
+    const VERIFY_ENDPOINT = '/api/verify'; // backend face verification
+    const LOOKUP_ENDPOINT = '/api/lookup'; // backend roll no lookup from Excel/DB
 
     const video = document.getElementById('video');
     const canvas = document.getElementById('captureCanvas');
@@ -132,12 +133,8 @@
     }
 
     function validateForm(){
-      const name = document.getElementById('fullName').value.trim();
-      const reg = document.getElementById('regId').value.trim();
-      const dob = document.getElementById('dob').value;
-      const center = document.getElementById('center').value.trim();
-      if(!name || !reg || !dob || !center) return false;
-      return {name,reg,dob,center};
+      const rollNo = document.getElementById('rollNo').value.trim();
+      const center = document.getElement
     }
 
     async function startCamera(){
