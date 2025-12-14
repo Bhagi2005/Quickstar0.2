@@ -1,270 +1,138 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Exam Registration & Face Verification — Kiosk</title>
-  <style>
-    :root{--accent:#0b6cf0;--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071027 0%, #071827 100%);font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    .app{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
-    .container{width:100%;max-width:1100px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.6);overflow:hidden;display:grid;grid-template-columns:460px 1fr}
-    .side{padding:28px;background:linear-gradient(180deg, rgba(11,18,32,0.6), rgba(6,10,20,0.2));color:#e6eef8}
-    .brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}
-    .logo{width:56px;height:56px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#00c6ff);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
-    h1{margin:0;font-size:20px}
-    p.lead{margin:6px 0 24px;color:var(--muted);font-size:13px}
-    label{display:block;font-size:13px;margin-top:12px;color:#cfe3ff}
-    input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#eaf3ff;outline:none;font-size:14px}
-    .row{display:flex;gap:12px}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:600;cursor:pointer}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-    .muted{color:var(--muted);font-size:13px}
-    .video-area{padding:24px;background:#071226;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center}
-    #video{width:100%;max-width:560px;border-radius:8px;border:2px solid rgba(255,255,255,0.03);background:#000}
-    canvas{display:none}
-    .controls{display:flex;gap:10px;margin-top:8px}
-    .result{margin-top:18px;padding:18px;border-radius:10px;background:linear-gradient(180deg,#072036, #071827);color:#e6eef8;min-width:260px;text-align:center}
-    .system-number{font-size:28px;font-weight:800;color:var(--accent);margin-top:8px}
-    .kbd{font-family:monospace;background:#061026;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03)}
-    .footer{font-size:12px;color:var(--muted);margin-top:12px}
-    .hidden{display:none}
-    /* responsive */
-    @media (max-width:980px){.container{grid-template-columns:1fr;max-width:760px}.side{order:2}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Exam Registration & Face Verification — Kiosk</title>
+
+<style>
+:root{--accent:#0b6cf0;--bg:#0f1724;--muted:#9aa4b2}
+html,body{height:100%;margin:0;background:#071027;font-family:system-ui}
+.app{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
+.container{width:100%;max-width:1100px;border-radius:12px;display:grid;grid-template-columns:460px 1fr;background:#0b1220}
+.side{padding:28px;color:#e6eef8}
+label{display:block;margin-top:12px}
+input{width:100%;padding:10px;border-radius:8px;border:none}
+.btn{margin-top:14px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:white;cursor:pointer}
+.video-area{padding:24px;display:flex;flex-direction:column;align-items:center}
+#video{width:100%;max-width:520px;border-radius:8px;background:black}
+.hidden{display:none}
+.result{margin-top:15px;padding:15px;background:#071827;border-radius:10px;text-align:center}
+img{width:150px;border-radius:10px;margin-top:10px}
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="container" role="application" aria-label="Exam registration kiosk">
-      <section class="side">
-        <div class="brand">
-          <div class="logo">EX</div>
-          <div>
-            <h1>Exam Kiosk — Registration</h1>
-            <div class="muted">Secure registration with OS-level kiosk controls</div>
-          </div>
-        </div>
+<div class="app">
+<div class="container">
 
-        <p class="lead">Fill candidate details below then start live face verification. The kiosk should be run in a locked-down OS kiosk session for full protection.</p>
+<!-- LEFT PANEL -->
+<section class="side">
 
-        <form id="regForm" autocomplete="off" onsubmit="return false;">
-          <label for="fullName">Full name</label>
-          <input id="fullName" name="fullName" type="text" placeholder="Candidate name" required />
+<h2>Exam Registration</h2>
 
-          <label for="rollNo">Roll Number</label>
-          <input id="rollNo" name="rollNo" type="text" placeholder="e.g. 21CS1234" required />
+<label>Roll Number</label>
+<input id="rollNo" placeholder="Enter Roll Number" />
 
-          <div class="row">
-            <div style="flex:1">
-              <label for="dob">Date of birth</label>
-              <input id="dob" name="dob" type="date" required />
-            </div>
-            <div style="width:140px">
-              <label for="center">Center code</label>
-              <input id="center" name="center" type="text" placeholder="C-01" required />
-            </div>
-          </div>
+<button class="btn" onclick="lookupStudent()">Start Verification</button>
 
-          <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
-            <button id="startBtn" class="btn" type="button">Start Verification</button>
-            <button id="kioskBtn" class="btn ghost" type="button">Enter Fullscreen</button>
-          </div>
+<div id="studentBox" class="result hidden">
+<p><b>Name:</b> <span id="name"></span></p>
+<p><b>Aadhaar:</b> <span id="aadhaar"></span></p>
+<img id="storedPhoto">
+</div>
 
-          <div class="footer">Tip: Disable browser chrome and run this page with a kiosk browser profile or convert into an Electron/Chromium app for real kiosk restrictions.</div>
-        </form>
+</section>
 
-        <div style="margin-top:18px;color:var(--muted);font-size:13px">
-          <strong>Security best-practices</strong>
-          <ul style="padding-left:18px;margin:8px 0 0;color:var(--muted)">
-            <li>Run page in OS kiosk mode or dedicated kiosk browser.</li>
-            <li>Disable physical ports & block external network access where required.</li>
-            <li>Verify captured photos server-side using a trusted ML model.</li>
-          </ul>
-        </div>
-      </section>
+<!-- RIGHT PANEL -->
+<section class="video-area">
 
-      <section class="video-area">
-        <div style="width:100%;max-width:760px;display:flex;flex-direction:column;align-items:center">
-          <video id="video" autoplay playsinline></video>
-          <canvas id="captureCanvas" width="1280" height="720"></canvas>
+<video id="video" autoplay></video>
+<canvas id="canvas" class="hidden"></canvas>
 
-          <div class="controls">
-            <button id="captureBtn" class="btn ghost" type="button" disabled>Capture & Verify</button>
-            <button id="retakeBtn" class="btn ghost hidden" type="button">Retake</button>
-            <button id="printBtn" class="btn hidden" type="button">Print Receipt</button>
-          </div>
+<button id="captureBtn" class="btn hidden" onclick="captureAndVerify()">Capture & Verify</button>
 
-          <div id="status" class="result hidden" role="status" aria-live="polite">
-            <div id="statusMsg">Ready</div>
-            <div id="sysNumber" class="system-number"></div>
-            <div style="margin-top:8px;color:var(--muted);font-size:13px" id="additionalInfo"></div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
+<div id="statusBox" class="result hidden">
+<p id="statusMsg"></p>
+<p><b>Seat:</b> <span id="seat"></span></p>
+<p><b>Floor:</b> <span id="floor"></span></p>
+</div>
 
-  <script>
-    // --- Simple single-file frontend for kiosk-style exam registration ---
-    // Notes:
-    // 1) Replace `VERIFY_ENDPOINT` with your backend endpoint that accepts JSON {name, regId, dob, center, image}
-    // 2) Backend should perform face recognition/verification and return {verified: bool, systemNumber: string, message: string}
-    // 3) For kiosk enforcement, run this page inside a locked OS profile or convert to Electron with proper OS policies.
+</section>
 
-    const VERIFY_ENDPOINT = '/api/verify'; // backend face verification
-    const LOOKUP_ENDPOINT = '/api/lookup'; // backend roll no lookup from Excel/DB
+</div>
+</div>
 
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('captureCanvas');
-    const startBtn = document.getElementById('startBtn');
-    const captureBtn = document.getElementById('captureBtn');
-    const statusBox = document.getElementById('status');
-    const statusMsg = document.getElementById('statusMsg');
-    const sysNumber = document.getElementById('sysNumber');
-    const retakeBtn = document.getElementById('retakeBtn');
-    const printBtn = document.getElementById('printBtn');
-    const kioskBtn = document.getElementById('kioskBtn');
+<script>
+const LOOKUP_ENDPOINT = "/api/lookup";
+const VERIFY_ENDPOINT = "/api/verify";
 
-    let stream = null;
+let stream;
 
-    function showStatus(text, visible=true){
-      statusMsg.textContent = text;
-      statusBox.classList.toggle('hidden', !visible);
-    }
+// ---------------- LOOKUP ----------------
+async function lookupStudent(){
+  const rollNo = document.getElementById("rollNo").value.trim();
+  if(!rollNo){ alert("Enter Roll Number"); return; }
 
-    function validateForm(){
-      const rollNo = document.getElementById('rollNo').value.trim();
-      const center = document.getElement
-    }
+  const res = await fetch(LOOKUP_ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({rollNo})
+  });
 
-    async function startCamera(){
-      try{
-        stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}, audio:false});
-        video.srcObject = stream;
-        captureBtn.disabled = false;
-        showStatus('Camera active. Position your face and press Capture to verify.');
-      }catch(e){
-        console.error('camera error', e);
-        showStatus('Unable to access camera. Check permissions and device settings.');
-      }
-    }
+  if(!res.ok){ alert("Roll number not found"); return; }
 
-    startBtn.addEventListener('click', async ()=>{
-      const vals = validateForm();
-      if(!vals){
-        alert('Please fill all candidate details before starting verification.');
-        return;
-      }
-      // Lock the form (best-effort)
-      document.getElementById('regForm').querySelectorAll('input,button').forEach(n=>n.disabled=true);
-      await startCamera();
-    });
+  const data = await res.json();
 
-    captureBtn.addEventListener('click', async ()=>{
-      captureBtn.disabled = true;
-      showStatus('Capturing image...');
+  document.getElementById("name").innerText = data.name;
+  document.getElementById("aadhaar").innerText = data.aadhaar;
+  document.getElementById("storedPhoto").src = data.photo;
 
-      // draw current video frame to canvas
-      const ctx = canvas.getContext('2d');
-      const vw = video.videoWidth || 1280;
-      const vh = video.videoHeight || 720;
-      canvas.width = vw; canvas.height = vh;
-      ctx.drawImage(video, 0, 0, vw, vh);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  document.getElementById("studentBox").classList.remove("hidden");
 
-      showStatus('Sending for verification...');
+  startCamera();
+}
 
-      const payload = {
-        name: document.getElementById('fullName').value.trim(),
-        regId: document.getElementById('regId').value.trim(),
-        dob: document.getElementById('dob').value,
-        center: document.getElementById('center').value.trim(),
-        image: dataUrl
-      };
+// ---------------- CAMERA ----------------
+async function startCamera(){
+  stream = await navigator.mediaDevices.getUserMedia({video:true});
+  document.getElementById("video").srcObject = stream;
+  document.getElementById("captureBtn").classList.remove("hidden");
+}
 
-      // Try server verification; if it fails, fall back to a simulated response (for local testing)
-      try{
-        const resp = await fetch(VERIFY_ENDPOINT, {
-          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
-        });
-        if(!resp.ok) throw new Error('server error');
-        const json = await resp.json();
-        handleVerificationResult(json);
-      }catch(err){
-        console.warn('verification endpoint failed, using simulated result:', err);
-        // simulated verification (REMOVE in production)
-        await new Promise(r=>setTimeout(r,1200));
-        const simulated = {verified:true, systemNumber: generateSystemNumber(payload.center), message:'Simulated verification (no backend)'};
-        handleVerificationResult(simulated);
-      }
-    });
+// ---------------- VERIFY ----------------
+async function captureAndVerify(){
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
 
-    function generateSystemNumber(center){
-      const rnd = Math.floor(1000 + Math.random()*9000);
-      return `${center}-${rnd}`;
-    }
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video,0,0);
 
-    function handleVerificationResult(result){
-      if(result.verified){
-        showStatus('Verification successful!');
-        sysNumber.textContent = result.systemNumber || generateSystemNumber(document.getElementById('center').value.trim());
-        document.getElementById('additionalInfo').textContent = result.message || '';
-        sysNumber.parentElement.classList.remove('hidden');
-        sysNumber.style.display = 'block';
-        // show buttons
-        retakeBtn.classList.remove('hidden');
-        printBtn.classList.remove('hidden');
-        captureBtn.classList.add('hidden');
-      }else{
-        showStatus('Verification failed: ' + (result.message || 'Face did not match'));
-        retakeBtn.classList.remove('hidden');
-        captureBtn.disabled = false;
-      }
-    }
+  const image = canvas.toDataURL("image/jpeg");
 
-    retakeBtn.addEventListener('click', ()=>{
-      // re-enable capture
-      captureBtn.disabled = false;
-      captureBtn.classList.remove('hidden');
-      retakeBtn.classList.add('hidden');
-      printBtn.classList.add('hidden');
-      showStatus('Position your face and press Capture to verify.');
-    });
+  const rollNo = document.getElementById("rollNo").value;
 
-    printBtn.addEventListener('click', ()=>{
-      // generate a simple printable receipt
-      const receipt = `Candidate: ${document.getElementById('fullName').value}\nRegID: ${document.getElementById('regId').value}\nCenter: ${document.getElementById('center').value}\nSystem Number: ${sysNumber.textContent}`;
-      const w = window.open('', '_blank');
-      w.document.write('<pre style="font-size:16px">' + receipt + '</pre>');
-      w.print();
-    });
+  const res = await fetch(VERIFY_ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({rollNo, liveImage:image})
+  });
 
-    // kiosk / fullscreen helper
-    kioskBtn.addEventListener('click', ()=>{
-      const el = document.documentElement;
-      if(el.requestFullscreen) el.requestFullscreen();
-      else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else alert('Fullscreen not supported by this browser');
-    });
+  const data = await res.json();
 
-    // disable context menu & some keys (best-effort; OS-level keys can't be fully blocked)
-    document.addEventListener('contextmenu', e=>e.preventDefault());
-    document.addEventListener('keydown', e=>{
-      // block ctrl+t, ctrl+n, ctrl+shift+i, f12
-      if((e.ctrlKey && (e.key === 't' || e.key === 'n')) || (e.ctrlKey && e.shiftKey && e.key === 'I') || e.key === 'F12'){
-        e.preventDefault();
-      }
-    });
+  document.getElementById("statusBox").classList.remove("hidden");
 
-    // cleanup media on page unload
-    window.addEventListener('beforeunload', ()=>{
-      if(stream){
-        stream.getTracks().forEach(t=>t.stop());
-      }
-    });
+  if(data.verified){
+    document.getElementById("statusMsg").innerText = "✅ VERIFIED";
+    document.getElementById("seat").innerText = data.seatNo;
+    document.getElementById("floor").innerText = data.floor;
+  }else{
+    document.getElementById("statusMsg").innerText = "❌ FACE MISMATCH";
+  }
+}
+</script>
 
-    // Accessibility: focus first input
-    document.getElementById('fullName').focus();
-  </script>
 </body>
 </html>
