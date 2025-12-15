@@ -69,24 +69,28 @@ const VERIFY_ENDPOINT = "/api/verify";
 
 let stream;
 
-// ---------------- LOOKUP ----------------
-async function lookupStudent(){
+let students = [];
+
+async function loadStudents(){
+  const res = await fetch("data/students.json");
+  students = await res.json();
+}
+loadStudents();
+
+function lookupStudent(){
   const rollNo = document.getElementById("rollNo").value.trim();
   if(!rollNo){ alert("Enter Roll Number"); return; }
 
-  const res = await fetch(LOOKUP_ENDPOINT,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({rollNo})
-  });
+  const student = students.find(s => s.rollNo === rollNo);
 
-  if(!res.ok){ alert("Roll number not found"); return; }
+  if(!student){
+    alert("Roll number not found");
+    return;
+  }
 
-  const data = await res.json();
-
-  document.getElementById("name").innerText = data.name;
-  document.getElementById("aadhaar").innerText = data.aadhaar;
-  document.getElementById("storedPhoto").src = data.photo;
+  document.getElementById("name").innerText = student.name;
+  document.getElementById("aadhaar").innerText = student.aadhaar;
+  document.getElementById("storedPhoto").src = student.photo;
 
   document.getElementById("studentBox").classList.remove("hidden");
 
