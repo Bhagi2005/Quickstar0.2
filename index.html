@@ -71,20 +71,21 @@ let stream;
 
 let students = [];
 
-async function loadStudents(){
-  const res = await fetch("students.json")
-
+async function loadStudents() {
+  const res = await fetch("students.json");
   students = await res.json();
+  console.log("Loaded:", students);
 }
 loadStudents();
 
-function lookupStudent(){
-  const rollNo = document.getElementById("rollNo").value.trim();
-  if(!rollNo){ alert("Enter Roll Number"); return; }
+function lookupStudent() {
+  const roll = document.getElementById("rollNo").value.trim().toUpperCase();
 
-  const student = students.find(s => s.rollNo === rollNo);
+  const student = students.find(
+    s => s.rollNo.toUpperCase() === roll
+  );
 
-  if(!student){
+  if (!student) {
     alert("Roll number not found");
     return;
   }
@@ -94,6 +95,8 @@ function lookupStudent(){
   document.getElementById("storedPhoto").src = student.photo;
 
   document.getElementById("studentBox").classList.remove("hidden");
+}
+
 
   startCamera();
 }
