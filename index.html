@@ -6,73 +6,19 @@
 <title>Exam Registration & Face Verification — Kiosk</title>
 
 <style>
-:root { --accent:#0b6cf0; }
-html,body {
-  height:100%;
-  margin:0;
-  background:#071027;
-  font-family:system-ui;
-}
-.app {
-  min-height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:28px;
-}
-.container {
-  width:100%;
-  max-width:1100px;
-  border-radius:12px;
-  display:grid;
-  grid-template-columns:460px 1fr;
-  background:#0b1220;
-}
-.side {
-  padding:28px;
-  color:#e6eef8;
-}
-label { display:block; margin-top:12px; }
-input {
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-}
-.btn {
-  margin-top:14px;
-  padding:10px 14px;
-  border-radius:10px;
-  border:none;
-  background:var(--accent);
-  color:white;
-  cursor:pointer;
-}
-.video-area {
-  padding:24px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-#video {
-  width:100%;
-  max-width:520px;
-  border-radius:8px;
-  background:black;
-}
-.hidden { display:none; }
-.result {
-  margin-top:15px;
-  padding:15px;
-  background:#071827;
-  border-radius:10px;
-  text-align:center;
-}
-img {
-  width:150px;
-  border-radius:10px;
-  margin-top:10px;
-}
+:root{--accent:#0b6cf0;--bg:#0f1724;--muted:#9aa4b2}
+html,body{height:100%;margin:0;background:#071027;font-family:system-ui}
+.app{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
+.container{width:100%;max-width:1100px;border-radius:12px;display:grid;grid-template-columns:460px 1fr;background:#0b1220}
+.side{padding:28px;color:#e6eef8}
+label{display:block;margin-top:12px}
+input{width:100%;padding:10px;border-radius:8px;border:none}
+.btn{margin-top:14px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:white;cursor:pointer}
+.video-area{padding:24px;display:flex;flex-direction:column;align-items:center}
+#video{width:100%;max-width:520px;border-radius:8px;background:black}
+.hidden{display:none}
+.result{margin-top:15px;padding:15px;background:#071827;border-radius:10px;text-align:center}
+img{width:150px;border-radius:10px;margin-top:10px}
 </style>
 </head>
 
@@ -82,6 +28,7 @@ img {
 
 <!-- LEFT PANEL -->
 <section class="side">
+
 <h2>Exam Registration</h2>
 
 <label>Roll Number</label>
@@ -90,43 +37,48 @@ img {
 <button class="btn" onclick="lookupStudent()">Start Verification</button>
 
 <div id="studentBox" class="result hidden">
-  <p><b>Name:</b> <span id="name"></span></p>
-  <p><b>Aadhaar:</b> <span id="aadhaar"></span></p>
-  <img id="storedPhoto">
+<p><b>Name:</b> <span id="name"></span></p>
+<p><b>Aadhaar:</b> <span id="aadhaar"></span></p>
+<img id="storedPhoto">
 </div>
+
 </section>
 
 <!-- RIGHT PANEL -->
 <section class="video-area">
+
 <video id="video" autoplay></video>
 <canvas id="canvas" class="hidden"></canvas>
 
 <button id="captureBtn" class="btn hidden" onclick="captureAndVerify()">Capture & Verify</button>
 
 <div id="statusBox" class="result hidden">
-  <p id="statusMsg"></p>
-  <p><b>Computer:</b> <span id="seat"></span></p>
-  <p><b>Lab:</b> <span id="floor"></span></p>
+<p id="statusMsg"></p>
+<p><b>Seat:</b> <span id="seat"></span></p>
+<p><b>Floor:</b> <span id="floor"></span></p>
 </div>
+
 </section>
 
 </div>
 </div>
 
 <script>
-let students = [];
-let stream = null;
+const LOOKUP_ENDPOINT = "/api/lookup";
+const VERIFY_ENDPOINT = "/api/verify";
 
-/* ---------------- LOAD JSON ---------------- */
+let stream;
+
+let students = [];
+
 async function loadStudents() {
   const res = await fetch("students.json");
   students = await res.json();
-  console.log("Students loaded:", students);
+  console.log("Loaded:", students);
 }
 loadStudents();
 
-/* ---------------- LOOKUP ---------------- */
-async function lookupStudent() {
+function lookupStudent() {
   const roll = document.getElementById("rollNo").value.trim().toUpperCase();
 
   const student = students.find(
@@ -138,70 +90,54 @@ async function lookupStudent() {
     return;
   }
 
-  document.getElementById("name").innerText = student.Name;
-  document.getElementById("aadhaar").innerText = student["Adhaar no."];
-  document.getElementById("storedPhoto").src = student["Profile photo"];
+  document.getElementById("name").innerText = student.name;
+  document.getElementById("aadhaar").innerText = student.aadhaar;
+  document.getElementById("storedPhoto").src = student.photo;
 
   document.getElementById("studentBox").classList.remove("hidden");
+}
+
 
   startCamera();
 }
 
-/* ---------------- CAMERA ---------------- */
-async function startCamera() {
-  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+// ---------------- CAMERA ----------------
+async function startCamera(){
+  stream = await navigator.mediaDevices.getUserMedia({video:true});
   document.getElementById("video").srcObject = stream;
   document.getElementById("captureBtn").classList.remove("hidden");
 }
 
-/* ---------------- CAPTURE IMAGE ---------------- */
-function captureImage() {
+// ---------------- VERIFY ----------------
+async function captureAndVerify(){
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
+  ctx.drawImage(video,0,0);
 
-  return canvas.toDataURL("image/jpeg");
-}
+  const image = canvas.toDataURL("image/jpeg");
 
-/* ---------------- SEAT ALLOCATION ---------------- */
-function allocateSeat(roll) {
-  const num = roll.slice(-2);
-  return {
-    computer: "PC-" + num,
-    lab: "Lab-" + ((num % 3) + 1) + " (2nd Floor)"
-  };
-}
+  const rollNo = document.getElementById("rollNo").value;
 
-/* ---------------- VERIFY ---------------- */
-function captureAndVerify() {
-  const liveImage = captureImage(); // captured image (demo)
+  const res = await fetch(VERIFY_ENDPOINT,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({rollNo, liveImage:image})
+  });
 
-  // 🔵 FRONTEND DEMO: assume face matched
-  const matched = true;
+  const data = await res.json();
 
   document.getElementById("statusBox").classList.remove("hidden");
 
-  if (matched) {
-    const roll = document.getElementById("rollNo").value.trim();
-    const seat = allocateSeat(roll);
-
-    document.getElementById("statusMsg").innerText = "✅ FACE VERIFIED";
-    document.getElementById("seat").innerText = seat.computer;
-    document.getElementById("floor").innerText = seat.lab;
-  } else {
+  if(data.verified){
+    document.getElementById("statusMsg").innerText = "✅ VERIFIED";
+    document.getElementById("seat").innerText = data.seatNo;
+    document.getElementById("floor").innerText = data.floor;
+  }else{
     document.getElementById("statusMsg").innerText = "❌ FACE MISMATCH";
-  }
-
-  // 🔐 STOP CAMERA
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-    document.getElementById("video").srcObject = null;
-    document.getElementById("captureBtn").classList.add("hidden");
   }
 }
 </script>
