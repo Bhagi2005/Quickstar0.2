@@ -112,12 +112,11 @@ img {
 
 </div>
 </div>
-
 <script>
 let students = [];
 let stream = null;
 
-/* ---------------- LOAD JSON ---------------- */
+/* ---------- LOAD STUDENTS ---------- */
 async function loadStudents() {
   const res = await fetch("students.json");
   students = await res.json();
@@ -125,7 +124,7 @@ async function loadStudents() {
 }
 loadStudents();
 
-/* ---------------- LOOKUP ---------------- */
+/* ---------- LOOKUP ---------- */
 async function lookupStudent() {
   const roll = document.getElementById("rollNo").value.trim().toUpperCase();
 
@@ -138,23 +137,34 @@ async function lookupStudent() {
     return;
   }
 
-  document.getElementById("name").innerText = student.Name;
-  document.getElementById("aadhaar").innerText = student["Adhaar no."];
-  document.getElementById("storedPhoto").src = student["Profile photo"];
-
+  document.getElementById("name").innerText = student.name;
+  document.getElementById("aadhaar").innerText = student.aadhaar;
+  document.getElementById("storedPhoto").src = student.photo;
   document.getElementById("studentBox").classList.remove("hidden");
 
-  startCamera();
+  await startCamera();
 }
 
-/* ---------------- CAMERA ---------------- */
+/* ---------- CAMERA ---------- */
 async function startCamera() {
-  stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  document.getElementById("video").srcObject = stream;
-  document.getElementById("captureBtn").classList.remove("hidden");
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: 640, height: 480 },
+      audio: false
+    });
+
+    const video = document.getElementById("video");
+    video.srcObject = stream;
+    await video.play();
+
+    document.getElementById("captureBtn").classList.remove("hidden");
+  } catch (err) {
+    alert("Camera access denied");
+    console.error(err);
+  }
 }
 
-/* ---------------- CAPTURE IMAGE ---------------- */
+/* ---------- CAPTURE ---------- */
 function captureImage() {
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
@@ -162,25 +172,26 @@ function captureImage() {
 
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
 
+  ctx.drawImage(video, 0, 0);
   return canvas.toDataURL("image/jpeg");
 }
 
-/* ---------------- SEAT ALLOCATION ---------------- */
-function allocateSeat(roll) {
-  const num = roll.slice(-2);
+/* ---------- SEAT ALLOCATION ---------- */
+function allocateSeat(rollNo) {
+  const num = parseInt(rollNo.slice(-2));
   return {
-    computer: "PC-" + num,
-    lab: "Lab-" + ((num % 3) + 1) + " (2nd Floor)"
+    lab: "Lab " + (Math.floor(num / 10) + 1),
+    computer: "PC-" + ((num % 10) + 1)
   };
 }
 
-/* ---------------- VERIFY ---------------- */
+/* ---------- VERIFY (SIMULATED) ---------- */
 function captureAndVerify() {
-  const liveImage = captureImage(); // captured image (demo)
+  const liveImage = captureImage();
+  console.log("Captured image:", liveImage);
 
-  // 🔵 FRONTEND DEMO: assume face matched
+  // SIMULATED face match (frontend only)
   const matched = true;
 
   document.getElementById("statusBox").classList.remove("hidden");
@@ -195,16 +206,9 @@ function captureAndVerify() {
   } else {
     document.getElementById("statusMsg").innerText = "❌ FACE MISMATCH";
   }
-
-  // 🔐 STOP CAMERA
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-    document.getElementById("video").srcObject = null;
-    document.getElementById("captureBtn").classList.add("hidden");
-  }
 }
 </script>
+
 
 </body>
 </html>
