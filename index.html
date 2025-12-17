@@ -72,7 +72,8 @@ let stream;
 let students = [];
 
 async function loadStudents(){
-  const res = await fetch("data/students.json");
+  const res = await fetch("students.json");
+
   students = await res.json();
 }
 loadStudents();
